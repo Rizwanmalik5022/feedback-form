@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Creation Form</title>
+<style>
+  /* Add CSS styles for password strength meter and error indications */
+  #passwordStrength {
+    margin-top: 10px;
+    font-size: 0.8em;
+  }
+  .requirement {
+    margin-top: 5px;
+    list-style: none; /* Remove default bullet points */
+    padding-left: 20px; /* Add left padding for bullet points */
+    position: relative; /* Required for absolute positioning of pseudo-element */
+  }
+  .requirement::before {
+    content: '\2022'; /* Unicode character for bullet point */
+    position: absolute;
+    left: 0;
+  }
+  .fulfilled::before {
+    color: #000; /* Color for fulfilled bullet points */
+  }
+  .unfulfilled::before {
+    color: #888; /* Color for unfulfilled bullet points */
+  }
+</style>
+</head>
+<body>
+
+<form id="passwordForm">
+  <h2>Registration</h2>
+  <label for="username">Username:</label><br>
+  <input type="text" id="username" name="username"><br>
+  <label for="password">Password:</label><br>
+  <input type="password" id="password" name="password">
+  <button type="button" id="toggleVisibility">&#128065;</button><br>
+  <div id="passwordStrength"></div><br>
+  <div id="staticPasswordRequirements">
+    <ul>
+      <li class="requirement unfulfilled">Password must be at least 6 characters long.</li>
+      <li class="requirement unfulfilled">Password must contain at least one uppercase letter.</li>
+      <li class="requirement unfulfilled">Password must contain at least one lowercase letter.</li>
+      <li class="requirement unfulfilled">Password must contain at least one digit.</li>
+      <li class="requirement unfulfilled">Password must contain at least one special character.</li>
+    </ul>
+  </div>
+  <div>
+    Password added count: <span id="passwordCount">0</span><br>
+    Eye feature usage count: <span id="eyeCount">0</span>
+  </div>
+  <input type="submit" value="Submit">
+</form>
+
+<script>
+  const passwordInput = document.getElementById('password');
+  const toggleVisibilityButton = document.getElementById('toggleVisibility');
+  const passwordStrength = document.getElementById('passwordStrength');
+  const staticPasswordRequirements = document.getElementById('staticPasswordRequirements');
+  const passwordCountSpan = document.getElementById('passwordCount');
+  const eyeCountSpan = document.getElementById('eyeCount');
+
+  let passwordCount = 0;
+  let eyeCount = 0;
+
+  toggleVisibilityButton.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    toggleVisibilityButton.textContent = type === 'password' ? '\uD83D\uDD13' : '\uD83D\uDD0D';
+    eyeCount++;
+    eyeCountSpan.textContent = eyeCount;
+  });
+
+  passwordInput.addEventListener('input', () => {
+    const password = passwordInput.value;
+    const strength = calculatePasswordStrength(password);
+    displayPasswordStrength(strength);
+    validatePassword(password);
+  });
+
+  function calculatePasswordStrength(password) {
+    // This is a simplified example; you can implement a more robust algorithm
+    const length = password.length;
+    if (length < 6) {
+      return 'Weak';
+    } else if (length < 10) {
+      return 'Moderate';
+    } else {
+      return 'Strong';
+    }
+  }
+
+  function displayPasswordStrength(strength) {
+    passwordStrength.textContent = strength;
+  }
+
+  function validatePassword(password) {
+    let fulfilledRequirements = [];
+    // Validate password against your criteria and add fulfilled requirements to the array
+    if (password.length >= 6) {
+      fulfilledRequirements.push('Password must be at least 6 characters long.');
+    }
+    if (/[A-Z]/.test(password)) {
+      fulfilledRequirements.push('Password must contain at least one uppercase letter.');
+    }
+    if (/[a-z]/.test(password)) {
+      fulfilledRequirements.push('Password must contain at least one lowercase letter.');
+    }
+    if (/\d/.test(password)) {
+      fulfilledRequirements.push('Password must contain at least one digit.');
+    }
+    if (/[^A-Za-z0-9]/.test(password)) {
+      fulfilledRequirements.push('Password must contain at least one special character.');
+    }
+    // Update the CSS class of static password requirements based on fulfillment
+    const requirements = staticPasswordRequirements.getElementsByTagName('li');
+    for (let req of requirements) {
+      const reqText = req.textContent.trim();
+      if (fulfilledRequirements.includes(reqText)) {
+        req.classList.remove('unfulfilled');
+        req.classList.add('fulfilled');
+      } else {
+        req.classList.remove('fulfilled');
+        req.classList.add('unfulfilled');
+      }
+    }
+    passwordCount++;
+    passwordCountSpan.textContent = passwordCount;
+  }
+</script>
+
+</body>
+</html>
